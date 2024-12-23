@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <canvas id="mycanvas" width="1000" height="600"></canvas>
+    <script>
+        let canvas = document.getElementById('mycanvas');
+        let ctx = canvas.getContext("2d");
+
+        let road = new Image();
+        let olive = new Image();
+
+        let frameWidth = 1899/12;
+        let frameHeight = 1390/4;
+        let xSprite = 0, ySprite = 0;
+        let frameCount=0;
+        let xRoad = 0;
+        let directionY = 0;//1 למעלה , -1 למטה
+        let direction =-1;//כיוון הכביש לפי האוליב -1 = שמאלת, 1 = ימין
+        let tick=0; // מאט את אוליב
+        let zoom = 1;//כשאוליב הולך למעלה או למטה
+
+        document.addEventListener('keydown', keyboardResponse);
+
+        road.src = "road.jpg";
+        olive.src ="olive.png";
+        olive.onload = function(){
+            
+            setInterval(draw,50);   
+        }
+
+        function draw(){
+            tick++;
+            ctx.clearRect(0,0,canvas.width,canvas.height)
+            ctx.save();
+                ctx.translate(xRoad,0);
+                ctx.scale(zoom,zoom);
+                  if(zoom=>0.8 && zoom <= 1.1){ 
+                zoom+=0.001*directionY;
+                  if(zoom<0.8)zoom = 0.8;
+                else
+                  if(zoom>1.1) zoom = 1.1;
+                  }
+                ctx.drawImage(road,0,0,canvas.width,canvas.height);
+                ctx.drawImage(road,canvas.width,0,canvas.width,canvas.height);
+                ctx.drawImage(road,-canvas.width,0,canvas.width,canvas.height);
+
+            if(xRoad<=-canvas.width || xRoad>=canvas.width)
+                xRoad=0;
+                else
+                xRoad+= 2*direction;           
+            ctx.restore();
+
+                ctx.drawImage(olive,xSprite,ySprite,frameWidth,frameHeight
+                            ,450,330,0.8*frameWidth,0.8*frameHeight);
+
+                xSprite = frameCount*frameWidth;
+                if(tick %3 ==0)
+                    frameCount++;
+                if(frameCount>=12){
+                    frameCount=3;
+                }     
+        }
+        function keyboardResponse(event) {
+            if (event.keyCode == 37) { //left
+                    ySprite = frameHeight;
+                    direction = 1;
+                    directionY =0;
+
+            } else if (event.keyCode == 38) { //up
+                    ySprite = 3*frameHeight
+                    direction = 0;
+                    directionY =1;
+
+            } else if (event.keyCode == 39) { //right
+                    ySprite=0;
+                    direction = -1
+                    directionY =0;
+
+            } else if (event.keyCode == 40) { //down
+                    ySprite=2*frameHeight;
+                    direction = 0;
+                    directionY =-1;
+            }
+        }
+    </script>
+</body>
+</html>
